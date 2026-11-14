@@ -29,7 +29,7 @@
 
 ## What is PivotStrike?
 
-**PivotStrike** is a Layer-3 network pivoting framework that creates a transparent TUN tunnel between your attack machine and compromised hosts. It lets you run **any tool** — nmap, CrackMapExec, Evil-WinRM, xfreerdp, curl — against internal networks **without proxychains, without SOCKS wrappers, and without manual route configuration**.
+**PivotStrike** is a Layer-3 network pivoting framework that creates a transparent TUN tunnel between your attack machine and compromised hosts. It lets you run **any tool** nmap, CrackMapExec, Evil-WinRM, xfreerdp, curl against internal networks **without proxychains, without SOCKS wrappers, and without manual route configuration**.
 
 Think of it as **ligolo-ng rebuilt from scratch** to eliminate every manual step and failure mode that wastes time during exams and engagements.
 
@@ -39,13 +39,13 @@ Think of it as **ligolo-ng rebuilt from scratch** to eliminate every manual step
 
 | Problem with Ligolo-ng | PivotStrike Solution |
 |---|---|
-| Manual `ip tuntap add` + `ip link set` + `ip route add` before anything works | **Fully automatic** — server creates TUN, assigns IP, adds all routes |
-| Need `autoroute` command or manual routes for each agent | **Auto-routing** — agent reports subnets, routes appear instantly |
-| Second pivot needs a **new TUN interface** + new routes | **Single TUN, any depth** — chain agents with one flag |
-| Multi-hop requires `listener_add` + complex relay setup | **Chain mode** — `./pivotstrike-agent -chain <parent>:11601` |
-| Interactive console needed to select sessions and start tunnels | **Always-on** — every agent's tunnel is live immediately |
+| Manual `ip tuntap add` + `ip link set` + `ip route add` before anything works | **Fully automatic** server creates TUN, assigns IP, adds all routes |
+| Need `autoroute` command or manual routes for each agent | **Auto-routing** agent reports subnets, routes appear instantly |
+| Second pivot needs a **new TUN interface** + new routes | **Single TUN, any depth** chain agents with one flag |
+| Multi-hop requires `listener_add` + complex relay setup | **Chain mode** `./pivotstrike-agent -chain <parent>:11601` |
+| Interactive console needed to select sessions and start tunnels | **Always-on** every agent's tunnel is live immediately |
 | No built-in SOCKS5 fallback | **Built-in SOCKS5** proxy on `:1080` |
-| `--ignore-cert` = no TLS security at all | **Certificate pinning** — safe self-signed certs |
+| `--ignore-cert` = no TLS security at all | **Certificate pinning** safe self-signed certs |
 | Agent exits on network interruption | **Auto-reconnect** with exponential backoff, never exits |
 | No join token (anyone can register as an agent) | **Pre-shared token** authentication |
 | Stale TUN interfaces after crash | **Auto-cleanup** on shutdown |
@@ -105,21 +105,21 @@ sudo ./pivotstrike-server
 
 ## Features
 
-- **TUN Interface** — Full Layer-3 routing. Run any tool natively (nmap -sS, nmap -sU, CrackMapExec, Evil-WinRM, RDP, SSH — everything)
-- **Zero Configuration** — Server creates TUN, assigns addresses, adds routes. No manual setup
-- **Automatic Multi-Hop** — Chain agents to any depth. One TUN serves all hops
-- **Auto Route Discovery** — Agents enumerate their interfaces and advertise subnets automatically
-- **Auto Route Injection** — OS routing table updated instantly when new agents connect
-- **Built-in SOCKS5 Proxy** — Fallback for tools that need a proxy (browser, proxychains)
-- **Certificate Pinning** — Secure self-signed TLS without blind trust
-- **Pre-shared Token Auth** — Prevents unauthorized agent registration
-- **Auto-Reconnect** — Exponential backoff with jitter, survives network blips, never exits
-- **Persistent Agent IDs** — Reconnects restore routes without operator intervention
-- **Interactive CLI** — Status, agents, routes, listeners — all from one console
-- **Reverse Shell Relay** — Catch callbacks from deep targets through the tunnel
-- **Clean Shutdown** — TUN interface + routes removed automatically
-- **Static Binaries** — No dependencies. `CGO_ENABLED=0`. Drop and run
-- **Cross-Platform** — Linux, Windows, macOS agents (amd64, arm64, arm, 386)
+- **TUN Interface** Full Layer-3 routing. Run any tool natively (nmap -sS, nmap -sU, CrackMapExec, Evil-WinRM, RDP, SSH — everything)
+- **Zero Configuration** Server creates TUN, assigns addresses, adds routes. No manual setup
+- **Automatic Multi-Hop** Chain agents to any depth. One TUN serves all hops
+- **Auto Route Discovery** Agents enumerate their interfaces and advertise subnets automatically
+- **Auto Route Injection** OS routing table updated instantly when new agents connect
+- **Built-in SOCKS5 Proxy** Fallback for tools that need a proxy (browser, proxychains)
+- **Certificate Pinning** Secure self-signed TLS without blind trust
+- **Pre-shared Token Auth** Prevents unauthorized agent registration
+- **Auto-Reconnect** Exponential backoff with jitter, survives network blips, never exits
+- **Persistent Agent IDs** Reconnects restore routes without operator intervention
+- **Interactive CLI** Status, agents, routes, listeners — all from one console
+- **Reverse Shell Relay** Catch callbacks from deep targets through the tunnel
+- **Clean Shutdown** TUN interface + routes removed automatically
+- **Static Binaries** No dependencies. `CGO_ENABLED=0`. Drop and run
+- **Cross-Platform** Linux, Windows, macOS agents (amd64, arm64, arm, 386)
 
 ---
 
@@ -388,13 +388,13 @@ nc -lvnp 4444
 
 ### Key Design Decisions
 
-**Single TUN, Software Routing** — Unlike ligolo-ng (one kernel TUN per pivot depth), PivotStrike routes inside the process using a longest-prefix-match table. Adding the 50th subnet is as cheap as the 1st.
+**Single TUN, Software Routing** Unlike ligolo-ng (one kernel TUN per pivot depth), PivotStrike routes inside the process using a longest-prefix-match table. Adding the 50th subnet is as cheap as the 1st.
 
-**gVisor NetStack for SYN Scans** — Raw IP packets from the TUN are terminated by a userland TCP/IP stack. SYN probes get real SYN/ACK or RST responses based on agent-side connect results — nmap reports accurate open/closed/filtered.
+**gVisor NetStack for SYN Scans** Raw IP packets from the TUN are terminated by a userland TCP/IP stack. SYN probes get real SYN/ACK or RST responses based on agent-side connect results — nmap reports accurate open/closed/filtered.
 
-**Recursive Nesting** — Every agent is a potential relay. A "nested" stream through yamux looks identical to a direct connection from the server's perspective. No special-casing at any depth.
+**Recursive Nesting** Every agent is a potential relay. A "nested" stream through yamux looks identical to a direct connection from the server's perspective. No special-casing at any depth.
 
-**Connect-Ack Handshake** — The agent sends a 1-byte status after `net.Dial` to the real target. This prevents the false-positive "everything looks open" problem that plagues proxy-based scanning.
+**Connect-Ack Handshake** The agent sends a 1-byte status after `net.Dial` to the real target. This prevents the false-positive "everything looks open" problem that plagues proxy-based scanning.
 
 ---
 
