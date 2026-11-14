@@ -1,0 +1,38 @@
+# Binaries
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build artifacts
+pivot-server
+pivot-agent
+
+# TLS certificates (auto-generated, contain secrets)
+pivot-server.crt
+pivot-server.key
+*.pem
+
+# Agent ID persistence files
+.pivot-agent-id
+
+# Test binary, build cache
+*.test
+*.out
+*.prof
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go workspace
+vendor/
